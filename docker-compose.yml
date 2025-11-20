@@ -1,0 +1,33 @@
+networks:
+  broker:
+    name: broker
+    external: true
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: openwebui
+    volumes:
+      - ./data:/app/backend/data
+      - ./home/ollama:/root/.ollama
+    environment:
+      - 'OPENROUTER_API_BASE_URL=${OPENROUTER_API_BASE_URL}'
+      - 'WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${NAME_SERVICE}-secure.rule=Host(`${NAME_SERVICE}.${HOSTINGDOMAIN}`)"
+      - "traefik.http.routers.${NAME_SERVICE}-secure.tls=true"
+      - "traefik.http.routers.${NAME_SERVICE}-secure.entrypoints=web-secured"
+      - "traefik.http.routers.${NAME_SERVICE}-secure.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=broker"
+    networks:
+      - broker
+      - default
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+#volumes:
+#open-webui: {}
+
+
