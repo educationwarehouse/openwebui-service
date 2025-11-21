@@ -11,8 +11,8 @@ services:
       - ./data:/app/backend/data
       - ./home/ollama:/root/.ollama
     environment:
-      - 'OPENROUTER_API_BASE_URL=${OPENROUTER_API_BASE_URL}'
-      - 'WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}'
+      OPENROUTER_API_BASE_URL: ${OPENROUTER_API_BASE_URL}
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${NAME_SERVICE}-secure.rule=Host(`${NAME_SERVICE}.${HOSTINGDOMAIN}`)"
@@ -27,7 +27,28 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-#volumes:
-#open-webui: {}
+  tunnellm:
+    image: robinvandernoord/tunnellm:latest
+    ports:
+      # host:container, one higher than default to prevent conflict; make sure this is blocked by your firewall!
+      - "${TUNNEL_PORT:-11435}:11434"
+    networks:
+      - default
+    environment:
+      VERBOSITY: ${TUNNEL_VERBOSITY:-0}
+      ENDPOINT: ${TUNNEL_ENDPOINT:-http://openwebui:8080/api}
+      OPENROUTER_API_KEY: ${TUNNEL_API_KEY}
+
+  debug:
+    image: ubuntu:latest
+    container_name: debug-helper
+    networks:
+      - default
+    command: ["sleep", "infinity"]
+    restart: unless-stopped
+
+
+# volumes:
+# open-webui: {}
 
 

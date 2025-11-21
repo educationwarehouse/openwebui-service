@@ -1,0 +1,7 @@
+
+[services]
+services = "discover"
+minimal = ["openwebui", "tunnellm"]
+include_celeries_in_minimal = "false"
+log = ["openwebui", "tunnellm"]
+db = []

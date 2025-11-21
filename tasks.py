@@ -45,3 +45,28 @@ def setup(c):
         default=generate_password(context, 32),
         comment="Secret key for Open WebUI (auto-generated)",
     )
+
+    enable_tunnellm = check_env(
+        "TUNNEL_ENABLE",
+        default="1",
+        comment="Enable TunnelLM?"
+    ) == "1"
+
+    if enable_tunnellm:
+        check_env(
+            "TUNNEL_ENDPOINT",
+            default="http://openwebui:8080/api",
+            comment="Defaults to local openwebui"
+        )
+
+        check_env(
+            "TUNNEL_API_KEY",
+            default="",
+            comment="Settings > Account > API Keys > API Key"
+        )
+
+        check_env(
+            "TUNNEL_PORT",
+            default="11435",
+            comment="Defaults to 1 higher than Ollama default"
+        )
