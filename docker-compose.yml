@@ -38,7 +38,7 @@ services:
     environment:
       VERBOSITY: ${TUNNELLM_VERBOSITY:-0}
       ENDPOINT: ${TUNNELLM_ENDPOINT:-http://openwebui:8080/api}
-      OPENROUTER_ API_KEY: ${TUNNELLM_API_KEY}
+      OPENROUTER_API_KEY: ${TUNNELLM_API_KEY}
 
   forwardllm:
     image: astral/uv:python3.14-alpine
