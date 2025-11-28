@@ -27,24 +27,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  tunnellm:
-    image: robinvandernoord/tunnellm:latest
+  ollama-openai-proxy:
+    image: eyalrot2/ollama-openai-proxy:latest
     ports:
-      # host:container, one higher than default to prevent conflict; make sure this is blocked by your firewall!
       - "${TUNNEL_PORT:-11435}:11434"
     networks:
       - default
     environment:
-      VERBOSITY: ${TUNNEL_VERBOSITY:-0}
-      ENDPOINT: ${TUNNEL_ENDPOINT:-http://openwebui:8080/api}
-      OPENROUTER_API_KEY: ${TUNNEL_API_KEY}
-
-  debug:
-    image: ubuntu:latest
-    container_name: debug-helper
-    networks:
-      - default
-    command: ["sleep", "infinity"]
+      OPENAI_API_BASE_URL: ${TUNNEL_ENDPOINT:-http://openwebui:8080/api}
+      OPENAI_API_KEY: ${TUNNEL_API_KEY}
     restart: unless-stopped
 
 
