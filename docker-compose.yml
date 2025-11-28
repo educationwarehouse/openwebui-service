@@ -27,21 +27,31 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  ollama-openai-proxy:
-    image: eyalrot2/ollama-openai-proxy:latest
+  tunnellm:
+    image: robinvandernoord/tunnellm:latest
     ports:
-      - "${TUNNEL_PORT:-11435}:11434"
+      # host:container, one higher than default to prevent conflict; make sure this is blocked by your firewall!
+      - "${TUNNELLM_PORT:-11435}:11434"
     networks:
       - default
-    environment:
-      OPENAI_API_BASE_URL: ${TUNNEL_ENDPOINT:-http://openwebui:8080/api}
-      OPENAI_API_KEY: ${TUNNEL_API_KEY}
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    environment:
+      VERBOSITY: ${TUNNELLM_VERBOSITY:-0}
+      ENDPOINT: ${TUNNELLM_ENDPOINT:-http://openwebui:8080/api}
+      OPENROUTER_ API_KEY: ${TUNNELLM_API_KEY}
+
+  forwardllm:
+    image: astral/uv:python3.14-alpine
+    ports:
+      # host:container, two higher than default to prevent conflict; make sure this is blocked by your firewall!
+      - "${FORWARDLLM_PORT:-11436}:11434"
+    command: 'uv run https://raw.githubusercontent.com/educationwarehouse/forwardllm/refs/heads/main/app.py'
+    networks:
+      - default
+    restart: unless-stopped
+    environment:
+      OPENROUTER_API_KEY: ${FORWARDLLM_API_KEY}
+      OPENROUTER_ENDPOINT: ${FORWARDLLM_ENDPOINT:-http://openwebui:8080/api}
 
 # volumes:
 # open-webui: {}

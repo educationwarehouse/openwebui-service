@@ -1,6 +1,6 @@
 from pathlib import Path
-import invoke.exceptions
-from edwh import tasks, task  # Use edwh.task to avoid warning
+
+from edwh import task, tasks  # Use edwh.task to avoid warning
 from invoke import Context
 
 # REQUIRED: ensure a .env file exists
@@ -19,7 +19,7 @@ def setup(c):
     # Ensure required directories exist
     Path("home/ollama").mkdir(parents=True, exist_ok=True)
     Path("data").mkdir(parents=True, exist_ok=True)
-    
+
     check_env(
         "NAME_SERVICE",
         default="openwebui",
@@ -46,27 +46,53 @@ def setup(c):
         comment="Secret key for Open WebUI (auto-generated)",
     )
 
-    enable_tunnellm = check_env(
-        "TUNNEL_ENABLE",
-        default="1",
-        comment="Enable TunnelLM?"
-    ) == "1"
+    enable_tunnellm = (
+        check_env("TUNNELLM_ENABLE", default="1", comment="Enable TunnelLM?") == "1"
+    )
 
     if enable_tunnellm:
         check_env(
-            "TUNNEL_ENDPOINT",
+            "TUNNELLM_ENDPOINT",
             default="http://openwebui:8080/api",
-            comment="Defaults to local openwebui"
+            comment="Defaults to local openwebui",
         )
 
         check_env(
-            "TUNNEL_API_KEY",
+            "TUNNELLM_API_KEY",
             default="",
-            comment="Settings > Account > API Keys > API Key"
+            comment="Settings > Account > API Keys > API Key",
         )
 
         check_env(
-            "TUNNEL_PORT",
+            "TUNNELLM_PORT",
             default="11435",
-            comment="Defaults to 1 higher than Ollama default"
+            comment="Defaults to 1 higher than Ollama default",
+        )
+
+    enable_forwardllm = (
+        check_env(
+            "FORWARDLLM_ENABLE",
+            default="1",
+            comment="Enable ForwardLLM (ollama api proxy)?",
+        )
+        == "1"
+    )
+
+    if enable_forwardllm:
+        check_env(
+            "FORWARDLLM_ENDPOINT",
+            default="http://openwebui:8080/api",
+            comment="Defaults to local openwebui",
+        )
+
+        check_env(
+            "FORWARDLLM_API_KEY",
+            default="",
+            comment="Settings > Account > API Keys > API Key",
+        )
+
+        check_env(
+            "FORWARDLLM_PORT",
+            default="11436",
+            comment="Defaults to 2 higher than Ollama default",
         )
